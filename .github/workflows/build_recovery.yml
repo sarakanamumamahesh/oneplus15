@@ -50,6 +50,7 @@ jobs:
   build:
     name: Build Universal Recovery
     runs-on: ubuntu-22.04
+    timeout-minutes: 120
     permissions:
       contents: write
 
@@ -68,9 +69,15 @@ jobs:
           sudo rm -rf /opt/ghc
           sudo rm -rf /opt/hostedtoolcache/CodeQL
           sudo rm -rf "/usr/local/share/boost"
-          sudo swapoff -a
+          sudo swapoff -a || true
           sudo rm -f /swapfile
           sudo apt-get clean
+          # Recreate swap so soong/mka do not get OOM-killed (exit 143) on 7GB runners
+          sudo fallocate -l 8G /swapfile || sudo dd if=/dev/zero of=/swapfile bs=1M count=8192
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+          free -h
           echo "=== Disk Space After Cleanup ==="
           df -h
 
@@ -148,6 +155,13 @@ jobs:
           mkdir -p ~/recovery/device/oneplus/$DEVICE_NAME
           cp -r device/oneplus/$DEVICE_NAME/* ~/recovery/device/oneplus/$DEVICE_NAME/
 
+      - name: Configure ccache
+        run: |
+          ccache --set-config=max_size=5G
+          ccache --set-config=compression=true
+          echo "use_ccache=1" >> $GITHUB_ENV
+          echo "CCACHE_EXEC=/usr/bin/ccache" >> $GITHUB_ENV
+
       - name: Build Recovery Image
         run: |
           cd ~/recovery
@@ -157,11 +171,14 @@ jobs:
           DEVICE="${{ github.event.inputs.DEVICE_NAME }}"
           TARGET="${{ github.event.inputs.BUILD_TARGET }}"
           
-          echo "Executing lunch command with Android 14.1 QPR release format (<product>-<release>-<variant>)..."
-          lunch ${PREFIX}_${DEVICE}-ap2a-userdebug || lunch ${PREFIX}_${DEVICE}-ap2a-eng || lunch twrp_${DEVICE}-ap2a-userdebug || lunch twrp_${DEVICE}-ap2a-eng || lunch ${PREFIX}_${DEVICE}-userdebug
+          echo "Executing lunch command..."
+          lunch ${PREFIX}_${DEVICE}-ap2a-userdebug || lunch ${PREFIX}_${DEVICE}-ap2a-eng || lunch twrp_${DEVICE}-ap2a-userdebug || lunch twrp_${DEVICE}-ap2a-eng || lunch ${PREFIX}_${DEVICE}-userdebug || lunch ${PREFIX}_${DEVICE}-eng || lunch twrp_${DEVICE}-userdebug || lunch twrp_${DEVICE}-eng
           
-          echo "Executing: mka $TARGET -j$(nproc --all)"
-          mka $TARGET -j$(nproc --all)
+          # Cap soong bootstrap + ninja jobs (soong ignores -j4 without these)
+          export NINJA_ARGS="-j4"
+          export SOONG_UI_NINJA_ARGS="-j4"
+          echo "Executing: mka $TARGET -j4"
+          mka $TARGET -j4
 
       - name: Package Recovery Output
         run: |
