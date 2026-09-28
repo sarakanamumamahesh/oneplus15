@@ -61,16 +61,19 @@ jobs:
           chmod a+rx ~/.bin/repo
           echo "$HOME/.bin" >> $GITHUB_PATH
 
-      - name: Configure Git
+      - name: Configure Git & Remove Auth Header Interference
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
+          # Crucial Fix: Unset GitHub Actions extraheader so gitlab.com doesn't reject auth
+          git config --global --unset-all http.https://github.com/.extraheader || true
+          git config --global url."https://gitlab.com/".insteadOf "git@gitlab.com:" || true
 
       - name: Initialize OrangeFox Source Manifest
         run: |
           mkdir -p ~/orangefox
           cd ~/orangefox
-          repo init -u https://gitlab.com/OrangeFox/Manifest.git -b ${{ github.event.inputs.MANIFEST_BRANCH }} --depth=1
+          repo init -u https://gitlab.com/OrangeFox/Manifest.git -b ${{ github.event.inputs.MANIFEST_BRANCH }} --depth=1 --no-repo-verify
           repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
 
       - name: Move Device Tree into Source Tree
