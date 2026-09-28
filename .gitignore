@@ -1,0 +1,11 @@
+# Build outputs
+out/
+.repo/
+*.img
+*.iso
+
+# Logs and system files
+*.log
+.DS_Store
+.vscode/
+.idea/
