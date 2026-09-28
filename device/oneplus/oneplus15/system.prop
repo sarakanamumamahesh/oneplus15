@@ -1,0 +1,11 @@
+# Charger
+ro.charger.enable_suspend=true
+
+# Gatekeeper & Security
+vendor.gatekeeper.is_security_level_spu=0
+
+# FUSE passthrough
+persist.sys.fuse.passthrough.enable=true
+
+# Display & Graphics
+vendor.display.enable_spr=1
