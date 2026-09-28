@@ -31,6 +31,9 @@ TARGET_2ND_CPU_ABI2 := armeabi
 TARGET_2ND_CPU_VARIANT := generic
 TARGET_2ND_CPU_VARIANT_RUNTIME := generic
 
+# 64-Bit App Support (Required for Android 12+ GKI builds)
+TARGET_SUPPORTS_64_BIT_APPS := true
+
 # Bootloader / Platform
 TARGET_BOOTLOADER_BOARD_NAME := oneplus15
 TARGET_BOARD_PLATFORM := pineapple
