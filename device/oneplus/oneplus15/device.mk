@@ -23,6 +23,17 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota.mk)
 PRODUCT_BUILD_SUPER_PARTITION := false
 PRODUCT_USE_DYNAMIC_PARTITIONS := true
 
-# Shipping API level for Recovery Base Compatibility (Android 14/15 base)
+# Shipping API level & VNDK Version
+BOARD_SHIPPING_API_LEVEL := 34
 PRODUCT_SHIPPING_API_LEVEL := 34
+PRODUCT_TARGET_VNDK_VERSION := 34
 BOARD_SYSTEMSDK_VERSIONS := 31 32 33 34 35
+
+# Dynamic Partition Tools
+PRODUCT_PACKAGES += \
+    lpflash \
+    lpmake \
+    lpunpack
+
+# Soong Namespaces
+PRODUCT_SOONG_NAMESPACES += $(LOCAL_PATH)
