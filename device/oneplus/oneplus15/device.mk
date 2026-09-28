@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2026 The OrangeFox Recovery Project
+# Copyright (C) 2026 The OrangeFox / TWRP Recovery Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,5 +23,6 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota.mk)
 PRODUCT_BUILD_SUPER_PARTITION := false
 PRODUCT_USE_DYNAMIC_PARTITIONS := true
 
-# Shipping API level
-PRODUCT_SHIPPING_API_LEVEL := 35
+# Shipping API level for Recovery Base Compatibility
+PRODUCT_SHIPPING_API_LEVEL := 31
+BOARD_SYSTEMSDK_VERSIONS := 31 32 33 34 35

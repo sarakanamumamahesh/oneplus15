@@ -34,6 +34,9 @@ TARGET_2ND_CPU_VARIANT_RUNTIME := generic
 # 64-Bit App Support (Required for Android 12+ GKI builds)
 TARGET_SUPPORTS_64_BIT_APPS := true
 
+# System SDK Compatibility
+BOARD_SYSTEMSDK_VERSIONS := 31 32 33 34 35
+
 # Bootloader / Platform
 TARGET_BOOTLOADER_BOARD_NAME := oneplus15
 TARGET_BOARD_PLATFORM := pineapple
