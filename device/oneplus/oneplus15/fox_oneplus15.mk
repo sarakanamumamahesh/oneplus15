@@ -26,8 +26,14 @@ $(call inherit-product, device/oneplus/oneplus15/device.mk)
 PRODUCT_NAME := fox_oneplus15
 PRODUCT_DEVICE := oneplus15
 PRODUCT_BRAND := OnePlus
-PRODUCT_MODEL := OnePlus 15
+PRODUCT_MODEL := OnePlus 15 (IN)
 PRODUCT_MANUFACTURER := OnePlus
+
+# Indian Variant (CPH / IN Region) Specifics
+PRODUCT_BUILD_PROP_OVERRIDES += \
+    TARGET_DEVICE="oneplus15" \
+    PRODUCT_NAME="oneplus15_in" \
+    PRIVATE_BUILD_DESC="oneplus15_in-user 15 OOP1.240901.001 A.01 release-keys"
 
 # OrangeFox Branding & Feature Flags
 FOX_VERSION := R12.1

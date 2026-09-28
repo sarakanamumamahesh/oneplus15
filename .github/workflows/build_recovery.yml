@@ -1,4 +1,4 @@
-name: Build OrangeFox Recovery for OnePlus 15
+name: Build OrangeFox Recovery for OnePlus 15 (IN)
 
 on:
   workflow_dispatch:
@@ -8,9 +8,13 @@ on:
         required: true
         default: 'fox_12.1'
       BUILD_TARGET:
-        description: 'Build Target Image (vendor_bootimage or recoveryimage)'
+        description: 'Build Target Image'
         required: true
         default: 'vendor_bootimage'
+        type: choice
+        options:
+          - 'vendor_bootimage'
+          - 'recoveryimage'
 
 jobs:
   build:
@@ -74,7 +78,7 @@ jobs:
           mkdir -p ~/orangefox/device/oneplus/oneplus15
           cp -r device/oneplus/oneplus15/* ~/orangefox/device/oneplus/oneplus15/
 
-      - name: Build OrangeFox Recovery
+      - name: Build OrangeFox Recovery (vendor_bootimage)
         run: |
           cd ~/orangefox
           source build/envsetup.sh
@@ -84,31 +88,31 @@ jobs:
       - name: Package Recovery Output
         run: |
           cd ~/orangefox/out/target/product/oneplus15
-          zip -r ~/OrangeFox-oneplus15-unofficial.zip *.img || true
+          zip -r ~/OrangeFox-oneplus15-IN-unofficial.zip *.img || true
 
       - name: Upload Recovery Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: OrangeFox-OnePlus15-Recovery
+          name: OrangeFox-OnePlus15-IN-Recovery
           path: |
+            ~/orangefox/out/target/product/oneplus15/vendor_boot.img
             ~/orangefox/out/target/product/oneplus15/*.img
-            ~/OrangeFox-oneplus15-unofficial.zip
+            ~/OrangeFox-oneplus15-IN-unofficial.zip
 
       - name: Release Recovery Image
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
         with:
-          tag_name: "v1.0-${{ github.run_id }}"
-          name: "OrangeFox Recovery for OnePlus 15 (Build #${{ github.run_number }})"
+          tag_name: "v1.0-IN-${{ github.run_id }}"
+          name: "OrangeFox Recovery for OnePlus 15 (Indian Variant - Build #${{ github.run_number }})"
           body: |
-            ## OrangeFox Unofficial Recovery for OnePlus 15
-            - **Target Device**: OnePlus 15 (`oneplus15`)
+            ## OrangeFox Recovery for OnePlus 15 (Indian Region / IN Variant)
+            - **Target Device**: OnePlus 15 (`oneplus15` / IN)
             - **Platform**: Snapdragon 8 Elite (`pineapple`)
-            - **Android Base**: Android 15 (GKI v4)
+            - **Target Image**: `vendor_boot.img`
             - **Build Date**: ${{ github.event.head_commit.timestamp || 'Manual Build' }}
           files: |
             ~/orangefox/out/target/product/oneplus15/vendor_boot.img
-            ~/orangefox/out/target/product/oneplus15/boot.img
-            ~/OrangeFox-oneplus15-unofficial.zip
+            ~/OrangeFox-oneplus15-IN-unofficial.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
