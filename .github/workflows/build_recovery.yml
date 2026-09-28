@@ -157,8 +157,8 @@ jobs:
           DEVICE="${{ github.event.inputs.DEVICE_NAME }}"
           TARGET="${{ github.event.inputs.BUILD_TARGET }}"
           
-          echo "Executing lunch..."
-          lunch ${PREFIX}_${DEVICE}-ap2a-eng || lunch ${PREFIX}_${DEVICE}-userdebug || lunch twrp_${DEVICE}-userdebug || lunch fox_${DEVICE}-userdebug
+          echo "Executing lunch command with Android 14.1 QPR release format (<product>-<release>-<variant>)..."
+          lunch ${PREFIX}_${DEVICE}-ap2a-userdebug || lunch ${PREFIX}_${DEVICE}-ap2a-eng || lunch twrp_${DEVICE}-ap2a-userdebug || lunch twrp_${DEVICE}-ap2a-eng || lunch ${PREFIX}_${DEVICE}-userdebug
           
           echo "Executing: mka $TARGET -j$(nproc --all)"
           mka $TARGET -j$(nproc --all)
