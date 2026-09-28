@@ -1,20 +1,54 @@
-name: Build OrangeFox Recovery for OnePlus 15 (IN)
+name: Universal Android Recovery Builder (OrangeFox / TWRP / SHRP / PBRP)
 
 on:
   workflow_dispatch:
     inputs:
+      RECOVERY_TYPE:
+        description: 'Select Recovery Framework'
+        required: true
+        type: choice
+        default: 'OrangeFox'
+        options:
+          - 'OrangeFox'
+          - 'TWRP'
+          - 'SHRP'
+          - 'PBRP'
+          - 'Custom'
       MANIFEST_URL:
-        description: 'Recovery Manifest Repository URL'
+        description: 'Manifest Repository URL (If Custom or Override)'
         required: true
         default: 'https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp.git'
       MANIFEST_BRANCH:
-        description: 'Recovery Manifest Branch'
+        description: 'Manifest Branch'
         required: true
         default: 'twrp-12.1'
+      BUILD_TARGET:
+        description: 'Target Build Image'
+        required: true
+        type: choice
+        default: 'vendor_bootimage'
+        options:
+          - 'vendor_bootimage'
+          - 'bootimage'
+          - 'recoveryimage'
+      DEVICE_NAME:
+        description: 'Device Codename'
+        required: true
+        default: 'oneplus15'
+      MAKEFILE_PREFIX:
+        description: 'Product Makefile Prefix (fox / twrp / shrp / pbrp)'
+        required: true
+        type: choice
+        default: 'fox'
+        options:
+          - 'fox'
+          - 'twrp'
+          - 'shrp'
+          - 'pbrp'
 
 jobs:
   build:
-    name: Build OrangeFox Recovery
+    name: Build Universal Recovery
     runs-on: ubuntu-22.04
     permissions:
       contents: write
@@ -64,53 +98,86 @@ jobs:
           git config --global --unset-all http.https://github.com/.extraheader || true
           git config --global url."https://github.com/".insteadOf "git@github.com:" || true
 
+      - name: Resolve Manifest URL & Branch
+        id: manifest
+        run: |
+          RECOVERY_TYPE="${{ github.event.inputs.RECOVERY_TYPE }}"
+          URL="${{ github.event.inputs.MANIFEST_URL }}"
+          BRANCH="${{ github.event.inputs.MANIFEST_BRANCH }}"
+
+          if [ "$RECOVERY_TYPE" = "TWRP" ]; then
+            URL="https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp.git"
+            BRANCH="twrp-12.1"
+          elif [ "$RECOVERY_TYPE" = "SHRP" ]; then
+            URL="https://github.com/SHRP/manifest.git"
+            BRANCH="shrp-12.1"
+          elif [ "$RECOVERY_TYPE" = "PBRP" ]; then
+            URL="https://github.com/PitchBlackRecoveryProject/manifest.git"
+            BRANCH="android-12.1"
+          fi
+
+          echo "final_url=$URL" >> $GITHUB_OUTPUT
+          echo "final_branch=$BRANCH" >> $GITHUB_OUTPUT
+          echo "Using Manifest URL: $URL"
+          echo "Using Manifest Branch: $BRANCH"
+
       - name: Initialize Recovery Source Manifest
         run: |
-          mkdir -p ~/orangefox
-          cd ~/orangefox
-          repo init -u ${{ github.event.inputs.MANIFEST_URL }} -b ${{ github.event.inputs.MANIFEST_BRANCH }} --depth=1 --no-repo-verify
+          mkdir -p ~/recovery
+          cd ~/recovery
+          repo init -u ${{ steps.manifest.outputs.final_url }} -b ${{ steps.manifest.outputs.final_branch }} --depth=1 --no-repo-verify
           repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
 
       - name: Move Device Tree into Source Tree
         run: |
-          mkdir -p ~/orangefox/device/oneplus/oneplus15
-          cp -r device/oneplus/oneplus15/* ~/orangefox/device/oneplus/oneplus15/
+          DEVICE_NAME="${{ github.event.inputs.DEVICE_NAME }}"
+          mkdir -p ~/recovery/device/oneplus/$DEVICE_NAME
+          cp -r device/oneplus/$DEVICE_NAME/* ~/recovery/device/oneplus/$DEVICE_NAME/
 
-      - name: Build OrangeFox / TWRP Recovery (vendor_bootimage)
+      - name: Build Recovery Image
         run: |
-          cd ~/orangefox
+          cd ~/recovery
           source build/envsetup.sh
-          lunch fox_oneplus15-userdebug || lunch twrp_oneplus15-userdebug
-          mka vendor_bootimage -j$(nproc --all)
+          
+          PREFIX="${{ github.event.inputs.MAKEFILE_PREFIX }}"
+          DEVICE="${{ github.event.inputs.DEVICE_NAME }}"
+          TARGET="${{ github.event.inputs.BUILD_TARGET }}"
+          
+          echo "Executing: lunch ${PREFIX}_${DEVICE}-userdebug"
+          lunch ${PREFIX}_${DEVICE}-userdebug || lunch twrp_${DEVICE}-userdebug || lunch fox_${DEVICE}-userdebug
+          
+          echo "Executing: mka $TARGET -j$(nproc --all)"
+          mka $TARGET -j$(nproc --all)
 
       - name: Package Recovery Output
         run: |
-          cd ~/orangefox/out/target/product/oneplus15
-          zip -r ~/OrangeFox-oneplus15-IN-unofficial.zip *.img || true
+          DEVICE="${{ github.event.inputs.DEVICE_NAME }}"
+          cd ~/recovery/out/target/product/$DEVICE
+          zip -r ~/${{ github.event.inputs.RECOVERY_TYPE }}-Recovery-$DEVICE-unofficial.zip *.img || true
 
       - name: Upload Recovery Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: OrangeFox-OnePlus15-IN-Recovery
+          name: ${{ github.event.inputs.RECOVERY_TYPE }}-${{ github.event.inputs.DEVICE_NAME }}-Recovery
           path: |
-            ~/orangefox/out/target/product/oneplus15/vendor_boot.img
-            ~/orangefox/out/target/product/oneplus15/*.img
-            ~/OrangeFox-oneplus15-IN-unofficial.zip
+            ~/recovery/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/vendor_boot.img
+            ~/recovery/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/*.img
+            ~/*.zip
 
       - name: Release Recovery Image
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
         with:
-          tag_name: "v1.0-IN-${{ github.run_id }}"
-          name: "OrangeFox Recovery for OnePlus 15 (Indian Variant - Build #${{ github.run_number }})"
+          tag_name: "v1.0-${{ github.event.inputs.RECOVERY_TYPE }}-${{ github.run_id }}"
+          name: "${{ github.event.inputs.RECOVERY_TYPE }} Recovery for ${{ github.event.inputs.DEVICE_NAME }} (Build #${{ github.run_number }})"
           body: |
-            ## OrangeFox Recovery for OnePlus 15 (Indian Region / IN Variant)
-            - **Target Device**: OnePlus 15 (`oneplus15` / IN)
-            - **Platform**: Snapdragon 8 Elite (`pineapple`)
-            - **Target Image**: `vendor_boot.img`
+            ## ${{ github.event.inputs.RECOVERY_TYPE }} Recovery Build
+            - **Target Device**: ${{ github.event.inputs.DEVICE_NAME }}
+            - **Recovery Type**: ${{ github.event.inputs.RECOVERY_TYPE }}
+            - **Target Image**: `${{ github.event.inputs.BUILD_TARGET }}`
             - **Build Date**: ${{ github.event.head_commit.timestamp || 'Manual Build' }}
           files: |
-            ~/orangefox/out/target/product/oneplus15/vendor_boot.img
-            ~/OrangeFox-oneplus15-IN-unofficial.zip
+            ~/recovery/out/target/product/${{ github.event.inputs.DEVICE_NAME }}/vendor_boot.img
+            ~/*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
