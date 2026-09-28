@@ -23,6 +23,6 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota.mk)
 PRODUCT_BUILD_SUPER_PARTITION := false
 PRODUCT_USE_DYNAMIC_PARTITIONS := true
 
-# Shipping API level for Recovery Base Compatibility
-PRODUCT_SHIPPING_API_LEVEL := 31
+# Shipping API level for Recovery Base Compatibility (Android 14/15 base)
+PRODUCT_SHIPPING_API_LEVEL := 34
 BOARD_SYSTEMSDK_VERSIONS := 31 32 33 34 35

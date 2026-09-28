@@ -31,7 +31,7 @@ on:
       MANIFEST_BRANCH:
         description: 'Manifest Branch'
         required: true
-        default: 'twrp-12.1'
+        default: 'twrp-14.1'
       BUILD_TARGET:
         description: 'Target Build Image'
         required: true
@@ -107,10 +107,10 @@ jobs:
 
           if [ "$RECOVERY_TYPE" = "TWRP" ]; then
             URL="https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp.git"
-            BRANCH="twrp-12.1"
+            BRANCH="twrp-14.1"
           elif [ "$RECOVERY_TYPE" = "OrangeFox" ]; then
             URL="https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp.git"
-            BRANCH="twrp-12.1"
+            BRANCH="twrp-14.1"
           elif [ "$RECOVERY_TYPE" = "SHRP" ]; then
             URL="https://github.com/SHRP/manifest.git"
             BRANCH="shrp-12.1"
