@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Keyboard, GraduationCap, Zap, BookOpen, Gamepad2, Volume2, VolumeX, Moon, Sun, HelpCircle, Download } from 'lucide-react';
+import { Keyboard, GraduationCap, Zap, BookOpen, Gamepad2, Volume2, VolumeX, Moon, Sun, HelpCircle, Download, BrainCircuit, Award, ShieldCheck } from 'lucide-react';
 
 export default function Navbar({ 
   activeTab, 
@@ -8,7 +8,8 @@ export default function Navbar({
   setSoundEnabled, 
   theme, 
   toggleTheme, 
-  onOpenGuide 
+  onOpenGuide,
+  onOpenCertificate
 }) {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
 
@@ -57,6 +58,15 @@ export default function Navbar({
         </button>
 
         <button 
+          className={`tab-btn ${activeTab === 'aitutor' ? 'active' : ''}`}
+          onClick={() => setActiveTab('aitutor')}
+          title="AI Adaptive Weak Key Tutor"
+        >
+          <BrainCircuit size={18} />
+          <span>AI Tutor</span>
+        </button>
+
+        <button 
           className={`tab-btn ${activeTab === 'speed' ? 'active' : ''}`}
           onClick={() => setActiveTab('speed')}
           title="Timed Speed Tests"
@@ -66,12 +76,12 @@ export default function Navbar({
         </button>
 
         <button 
-          className={`tab-btn ${activeTab === 'quotes' ? 'active' : ''}`}
-          onClick={() => setActiveTab('quotes')}
-          title="Quotes & Code Snippets"
+          className={`tab-btn ${activeTab === 'verify' ? 'active' : ''}`}
+          onClick={() => setActiveTab('verify')}
+          title="Certificate Verification Portal"
         >
-          <BookOpen size={18} />
-          <span>Sprints</span>
+          <ShieldCheck size={18} />
+          <span>Verify Cert</span>
         </button>
 
         <button 
@@ -80,11 +90,21 @@ export default function Navbar({
           title="Arcade Typing Defense Game"
         >
           <Gamepad2 size={18} />
-          <span>Word Defense</span>
+          <span>Defense</span>
         </button>
       </nav>
 
       <div className="nav-actions">
+        <button 
+          className="btn-primary"
+          onClick={onOpenCertificate}
+          style={{ background: 'linear-gradient(135deg, var(--accent-amber), #d97706)', border: 'none' }}
+          title="Generate Unique Verifiable Typing Certificate"
+        >
+          <Award size={16} />
+          <span>Certificate</span>
+        </button>
+
         <button 
           className="btn-primary"
           onClick={handleInstallClick}
@@ -117,7 +137,7 @@ export default function Navbar({
           title="View Beginner Instructions & Finger Placement Guide"
         >
           <HelpCircle size={18} />
-          <span>Beginner Guide</span>
+          <span>Guide</span>
         </button>
       </div>
     </header>
