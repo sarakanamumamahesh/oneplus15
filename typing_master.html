@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#38bdf8" />
+  <title>Typing Master - PWA Web App</title>
+  <meta name="description" content="Master touch typing in your browser with finger placement guides, speed tests, and arcade games offline as a PWA." />
+  
+  <!-- Manifest inline data URL for instant standalone PWA support -->
+  <link rel="manifest" href="data:application/manifest+json;utf8,%7B%22name%22%3A%22Typing%20Master%20PWA%22%2C%22short_name%22%3A%22TypingMaster%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230f1219%22%2C%22theme_color%22%3A%22%2338bdf8%22%7D" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    /* Matte Design System */
+    :root {
+      --bg-primary: #0f1219;
+      --bg-secondary: #161b26;
+      --bg-card: #1e2433;
+      --bg-card-hover: #262e40;
+      --bg-surface: #2b3347;
+
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-matte: #2e374a;
+
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      --accent-cyan: #38bdf8;
+      --accent-teal: #14b8a6;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-violet: #8b5cf6;
+
+      --finger-pinky: #f43f5e;
+      --finger-ring: #f59e0b;
+      --finger-middle: #10b981;
+      --finger-index: #06b6d4;
+      --finger-thumb: #8b5cf6;
+
+      --key-bg: #1e2536;
+      --key-border: #2d374d;
+      --key-text: #e2e8f0;
+      
+      --font-sans: 'Outfit', 'Inter', sans-serif;
+      --font-mono: 'Fira Code', monospace;
+
+      --shadow-matte: 0 8px 32px rgba(0, 0, 0, 0.36);
+      --shadow-key: 0 4px 0 #121722;
+      --shadow-key-pressed: 0 1px 0 #121722;
+
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 20px;
+    }
+
+    [data-theme='light'] {
+      --bg-primary: #f1f5f9;
+      --bg-secondary: #e2e8f0;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f8fafc;
+      --bg-surface: #cbd5e1;
+      --border-subtle: rgba(0, 0, 0, 0.08);
+      --border-matte: #cbd5e1;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --text-dim: #94a3b8;
+      --key-bg: #f8fafc;
+      --key-border: #cbd5e1;
+      --key-text: #1e293b;
+      --shadow-key: 0 4px 0 #94a3b8;
+      --shadow-key-pressed: 0 1px 0 #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      line-height: 1.5;
+      padding: 1rem;
+    }
+
+    .app-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      min-height: 95vh;
+    }
+
+    /* Header & Navigation */
+    .nav-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1.25rem;
+      background: var(--bg-secondary);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-subtle);
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .logo-section { display: flex; align-items: center; gap: 0.75rem; }
+    .logo-icon {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+      border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; font-weight: 800; color: #fff;
+      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+    }
+    .logo-title { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.02em; }
+    .logo-badge { font-size: 0.65rem; font-weight: 700; padding: 2px 8px; border-radius: 99px; background: rgba(56, 189, 248, 0.15); color: var(--accent-cyan); border: 1px solid rgba(56, 189, 248, 0.3); text-transform: uppercase; }
+
+    .nav-tabs { display: flex; gap: 0.35rem; background: var(--bg-primary); padding: 4px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); }
+    .tab-btn { padding: 0.5rem 0.9rem; border-radius: var(--radius-sm); background: transparent; color: var(--text-muted); border: none; font-family: var(--font-sans); font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.2s ease; }
+    .tab-btn:hover { color: var(--text-main); background: rgba(255, 255, 255, 0.05); }
+    .tab-btn.active { background: var(--bg-card); color: var(--accent-cyan); border: 1px solid var(--border-subtle); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); }
+
+    .nav-actions { display: flex; align-items: center; gap: 0.5rem; }
+    .icon-btn { width: 38px; height: 38px; border-radius: var(--radius-sm); background: var(--bg-card); border: 1px solid var(--border-subtle); color: var(--text-muted); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; font-size: 1rem; }
+    .icon-btn:hover { color: var(--text-main); background: var(--bg-surface); }
+    .btn-primary { display: flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; background: linear-gradient(135deg, var(--accent-cyan), #0284c7); color: #fff; border: none; border-radius: var(--radius-sm); font-family: var(--font-sans); font-weight: 600; font-size: 0.85rem; cursor: pointer; box-shadow: 0 4px 14px rgba(56, 189, 248, 0.3); }
+
+    /* Telemetry Banner */
+    .stats-banner { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem; margin-bottom: 1.25rem; }
+    .stat-item { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 0.85rem; text-align: center; }
+    .stat-label { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.2rem; }
+    .stat-value { font-size: 1.6rem; font-weight: 800; font-family: var(--font-mono); color: var(--text-main); }
+    .stat-value.highlight { color: var(--accent-cyan); }
+
+    /* Matte Cards & Typing Display */
+    .matte-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.25rem; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25); margin-bottom: 1.25rem; }
+    .typing-box { background: var(--bg-secondary); border: 2px solid var(--border-matte); border-radius: var(--radius-lg); padding: 1.75rem; margin-bottom: 1.25rem; box-shadow: var(--shadow-matte); }
+    .typing-text { font-family: var(--font-mono); font-size: 1.3rem; line-height: 1.8; letter-spacing: 0.04em; user-select: none; white-space: pre-wrap; word-break: break-word; }
+
+    .char { position: relative; border-radius: 3px; transition: all 0.08s; }
+    .char.untyped { color: var(--text-dim); }
+    .char.correct { color: var(--accent-emerald); background: rgba(16, 185, 129, 0.12); }
+    .char.incorrect { color: var(--accent-rose); background: rgba(244, 63, 94, 0.2); text-decoration: underline; }
+    .char.current { color: #fff; background: rgba(56, 189, 248, 0.35); border-bottom: 2px solid var(--accent-cyan); animation: pulse-cursor 0.8s infinite alternate; }
+
+    @keyframes pulse-cursor {
+      from { background: rgba(56, 189, 248, 0.2); }
+      to { background: rgba(56, 189, 248, 0.6); }
+    }
+
+    /* Virtual Keyboard */
+    .keyboard-container { background: var(--bg-secondary); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 1rem; display: flex; flex-direction: column; gap: 0.35rem; max-width: 860px; margin: 0 auto 1.25rem; }
+    .keyboard-row { display: flex; justify-content: center; gap: 0.3rem; }
+    .key { background: var(--key-bg); border: 1px solid var(--key-border); border-radius: var(--radius-sm); color: var(--key-text); font-family: var(--font-mono); font-weight: 600; font-size: 0.85rem; height: 44px; min-width: 38px; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-key); user-select: none; transition: all 0.08s; }
+    .key.pressed { transform: translateY(3px); box-shadow: var(--shadow-key-pressed); background: var(--bg-surface); }
+    .key.target { border-color: var(--accent-cyan); background: rgba(56, 189, 248, 0.25); color: #fff; box-shadow: 0 0 12px rgba(56, 189, 248, 0.5); }
+
+    .key[data-finger="pinky"] { border-top: 3px solid var(--finger-pinky); }
+    .key[data-finger="ring"] { border-top: 3px solid var(--finger-ring); }
+    .key[data-finger="middle"] { border-top: 3px solid var(--finger-middle); }
+    .key[data-finger="index"] { border-top: 3px solid var(--finger-index); }
+    .key[data-finger="thumb"] { border-top: 3px solid var(--finger-thumb); }
+
+    .key-wide-1_5 { flex: 1.5; min-width: 55px; }
+    .key-wide-2 { flex: 2; min-width: 75px; }
+    .key-wide-2_5 { flex: 2.5; min-width: 90px; }
+    .key-space { flex: 6; min-width: 240px; }
+
+    .finger-legend { display: flex; justify-content: center; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px solid var(--border-subtle); }
+    .finger-pill { display: flex; align-items: center; gap: 0.3rem; font-size: 0.72rem; font-weight: 600; color: var(--text-muted); }
+    .finger-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    /* Modal Overlay */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(10, 13, 20, 0.85); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
+    .modal-content { background: var(--bg-secondary); border: 1px solid var(--border-matte); border-radius: var(--radius-lg); max-width: 720px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 1.75rem; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-subtle); }
+    .guide-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
+    .guide-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1rem; }
+    .guide-card h4 { font-size: 0.95rem; color: var(--accent-cyan); margin-bottom: 0.4rem; }
+    .guide-card p, .guide-card ul { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; }
+    .guide-card ul { padding-left: 1.1rem; }
+
+    footer { text-align: center; color: var(--text-muted); font-size: 0.8rem; margin-top: auto; padding-top: 1rem; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- React & Babel Standalone CDNs -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    const FINGER_MAP = {
+      'q':'pinky','a':'pinky','z':'pinky','1':'pinky','w':'ring','s':'ring','x':'ring','2':'ring',
+      'e':'middle','d':'middle','c':'middle','3':'middle','r':'index','f':'index','v':'index','t':'index','g':'index','b':'index','4':'index','5':'index',
+      ' ':'thumb',
+      'y':'index','h':'index','n':'index','u':'index','j':'index','m':'index','6':'index','7':'index',
+      'i':'middle','k':'middle',',':'middle','8':'middle','o':'ring','l':'ring','.':'ring','9':'ring',
+      'p':'pinky',';':'pinky','/':'pinky','0':'pinky'
+    };
+
+    const LESSONS = [
+      { title: 'Lesson 1: Home Row - Left Hand (A S D F)', text: 'asdf asdf fdas fdas asdf asdf fads fads asdf asdf', tip: 'Left Pinky on A | Left Ring on S | Left Middle on D | Left Index on F' },
+      { title: 'Lesson 2: Home Row - Right Hand (J K L ;)', text: 'jkl; jkl; ;lkj ;lkj jkl; jkl; klj; klj; jkl; jkl;', tip: 'Right Index on J | Right Middle on K | Right Ring on L | Right Pinky on ;' },
+      { title: 'Lesson 3: Complete Home Row (A S D F J K L ;)', text: 'asdf jkl; asdf jkl; fj dk sl a; gh gh asdfgh jkl;gh', tip: 'Rest fingers on home row. Extend Left Index to G, Right Index to H.' },
+      { title: 'Lesson 4: Index Finger Expansion (E R U I)', text: 'fde frf jui jki ed rf uj ik red fur irk red fur irk', tip: 'Reach UP from Home Row. Return fingers to rest position after every press!' },
+      { title: 'Lesson 5: Sentences & Rhythm', text: 'the quick brown fox jumps over the lazy dog. practice daily to build muscle memory.', tip: 'Keep a steady cadence. Focus on zero mistakes!' }
+    ];
+
+    const SPEED_TEXTS = [
+      "The quick brown fox jumps over the lazy dog. Practice makes perfect touch typing speed.",
+      "Touch typing relies on muscle memory rather than sight. Continuous effort is the key to unlocking your potential.",
+      "Design is not just what it looks like and feels like. Design is how it works."
+    ];
+
+    const DEFENSE_WORDS = ["type", "code", "focus", "speed", "key", "shift", "space", "react", "matte", "logic", "master", "rhythm", "finger", "home", "row"];
+
+    function playAudio(type = 'click', enabled = true) {
+      if (!enabled) return;
+      try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
+        const ctx = new AudioContextClass();
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        if (type === 'correct' || type === 'click') {
+          osc.type = 'triangle'; osc.frequency.setValueAtTime(600, now); osc.frequency.exponentialRampToValueAtTime(120, now + 0.035);
+          gain.gain.setValueAtTime(0.25, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+        } else if (type === 'error') {
+          osc.type = 'sawtooth'; osc.frequency.setValueAtTime(140, now); osc.frequency.exponentialRampToValueAtTime(60, now + 0.08);
+          gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        } else if (type === 'space') {
+          osc.type = 'sine'; osc.frequency.setValueAtTime(220, now); osc.frequency.exponentialRampToValueAtTime(80, now + 0.05);
+          gain.gain.setValueAtTime(0.35, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+        }
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(now); osc.stop(now + 0.08);
+      } catch(e) {}
+    }
+
+    function App() {
+      const [tab, setTab] = useState('academy');
+      const [sound, setSound] = useState(true);
+      const [theme, setTheme] = useState('dark');
+      const [showGuide, setShowGuide] = useState(false);
+      const [deferredPrompt, setDeferredPrompt] = useState(null);
+
+      useEffect(() => {
+        const handlePrompt = (e) => { e.preventDefault(); setDeferredPrompt(e); };
+        window.addEventListener('beforeinstallprompt', handlePrompt);
+        return () => window.removeEventListener('beforeinstallprompt', handlePrompt);
+      }, []);
+
+      const installPWA = () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+        } else {
+          alert("PWA Installation:\n• Chrome/Edge: Click the Install icon in the browser address bar.\n• iPhone/iPad: Tap Share ➔ 'Add to Home Screen'\n• Android: Tap Menu ➔ 'Install App'");
+        }
+      };
+
+      const toggleTheme = () => {
+        const next = theme === 'dark' ? 'light' : 'dark';
+        setTheme(next);
+        document.documentElement.setAttribute('data-theme', next);
+      };
+
+      return (
+        <div className="app-container">
+          <header className="nav-header">
+            <div className="logo-section">
+              <div className="logo-icon">⌨️</div>
+              <div>
+                <div className="logo-title">Typing Master</div>
+                <span className="logo-badge">Standalone PWA</span>
+              </div>
+            </div>
+
+            <div className="nav-tabs">
+              <button className={`tab-btn ${tab === 'academy' ? 'active' : ''}`} onClick={() => setTab('academy')}>🎓 Academy</button>
+              <button className={`tab-btn ${tab === 'speed' ? 'active' : ''}`} onClick={() => setTab('speed')}>⚡ Speed Test</button>
+              <button className={`tab-btn ${tab === 'defense' ? 'active' : ''}`} onClick={() => setTab('defense')}>🎮 Word Defense</button>
+            </div>
+
+            <div className="nav-actions">
+              <button className="btn-primary" onClick={installPWA} style={{ background: 'linear-gradient(135deg, var(--accent-emerald), #059669)' }}>📲 Install App</button>
+              <button className="icon-btn" onClick={() => setSound(!sound)} title="Toggle Audio">{sound ? '🔊' : '🔇'}</button>
+              <button className="icon-btn" onClick={toggleTheme} title="Toggle Theme">{theme === 'dark' ? '☀️' : '🌙'}</button>
+              <button className="btn-primary" onClick={() => setShowGuide(true)}>❓ Beginner Guide</button>
+            </div>
+          </header>
+
+          <main style={{ flex: 1 }}>
+            {tab === 'academy' && <Academy sound={sound} />}
+            {tab === 'speed' && <SpeedTest sound={sound} />}
+            {tab === 'defense' && <DefenseGame sound={sound} />}
+          </main>
+
+          {showGuide && <GuideModal onClose={() => setShowGuide(false)} />}
+
+          <footer>Typing Master • Installable Progressive Web App (PWA)</footer>
+        </div>
+      );
+    }
+
+    function Academy({ sound }) {
+      const [lessonIdx, setLessonIdx] = useState(0);
+      const lesson = LESSONS[lessonIdx];
+      const [inputIdx, setInputIdx] = useState(0);
+      const [userInput, setUserInput] = useState('');
+      const [errors, setErrors] = useState(0);
+      const [wpm, setWpm] = useState(0);
+      const [accuracy, setAccuracy] = useState(100);
+
+      useEffect(() => {
+        setInputIdx(0); setUserInput(''); setErrors(0); setWpm(0); setAccuracy(100);
+      }, [lessonIdx]);
+
+      useEffect(() => {
+        const handleKey = (e) => {
+          if (['Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'Tab'].includes(e.key)) return;
+          if (e.key === 'Backspace') {
+            if (inputIdx > 0) { setInputIdx(p => p - 1); setUserInput(p => p.slice(0, -1)); playAudio('click', sound); }
+            return;
+          }
+          if (e.key.length === 1) {
+            const target = lesson.text[inputIdx];
+            if (e.key === target) playAudio(e.key === ' ' ? 'space' : 'correct', sound);
+            else { playAudio('error', sound); setErrors(p => p + 1); }
+            const nextIdx = inputIdx + 1;
+            setUserInput(p => p + e.key);
+            setInputIdx(nextIdx);
+            setAccuracy(Math.max(0, Math.round((nextIdx / (nextIdx + errors + 1)) * 100)));
+            setWpm(Math.round((nextIdx / 5) * 12));
+          }
+        };
+        window.addEventListener('keydown', handleKey);
+        return () => window.removeEventListener('keydown', handleKey);
+      }, [inputIdx, lessonIdx, errors, sound]);
+
+      const targetChar = lesson.text[inputIdx] || '';
+      const finger = FINGER_MAP[targetChar.toLowerCase()] || 'thumb';
+
+      return (
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h2>{lesson.title}</h2>
+            <select value={lessonIdx} onChange={e => setLessonIdx(Number(e.target.value))} className="tab-btn" style={{ background: 'var(--bg-card)' }}>
+              {LESSONS.map((l, i) => <option key={i} value={i}>{l.title}</option>)}
+            </select>
+          </div>
+
+          <div className="matte-card" style={{ borderLeft: `4px solid var(--finger-${finger})` }}>
+            💡 Target Key: <strong style={{ background: 'var(--bg-secondary)', padding: '2px 8px', borderRadius: '4px' }}>{targetChar === ' ' ? 'SPACE' : targetChar.toUpperCase()}</strong> | Use Finger: <strong style={{ color: `var(--finger-${finger})`, textTransform: 'capitalize' }}>{finger}</strong>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '4px' }}>{lesson.tip}</div>
+          </div>
+
+          <div className="stats-banner">
+            <div className="stat-item"><div className="stat-label">Speed</div><div className="stat-value highlight">{wpm} WPM</div></div>
+            <div className="stat-item"><div className="stat-label">Accuracy</div><div className="stat-value" style={{ color: accuracy >= 95 ? 'var(--accent-emerald)' : 'var(--accent-amber)' }}>{accuracy}%</div></div>
+            <div className="stat-item"><div className="stat-label">Progress</div><div className="stat-value">{inputIdx}/{lesson.text.length}</div></div>
+            <div className="stat-item"><div className="stat-label">Errors</div><div className="stat-value">{errors}</div></div>
+          </div>
+
+          <div className="typing-box">
+            <div className="typing-text">
+              {lesson.text.split('').map((char, i) => {
+                let status = 'untyped';
+                if (i < inputIdx) status = userInput[i] === char ? 'correct' : 'incorrect';
+                else if (i === inputIdx) status = 'current';
+                return <span key={i} className={`char ${status}`}>{char}</span>;
+              })}
+            </div>
+          </div>
+
+          <VirtualKeyboard targetChar={targetChar} />
+        </div>
+      );
+    }
+
+    function SpeedTest({ sound }) {
+      const [text, setText] = useState(SPEED_TEXTS[0]);
+      const [inputIdx, setInputIdx] = useState(0);
+      const [userInput, setUserInput] = useState('');
+      const [errors, setErrors] = useState(0);
+      const [wpm, setWpm] = useState(0);
+      const [accuracy, setAccuracy] = useState(100);
+
+      const reset = () => {
+        setText(SPEED_TEXTS[Math.floor(Math.random() * SPEED_TEXTS.length)]);
+        setInputIdx(0); setUserInput(''); setErrors(0); setWpm(0); setAccuracy(100);
+      };
+
+      useEffect(() => {
+        const handleKey = (e) => {
+          if (['Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'Tab'].includes(e.key)) return;
+          if (e.key === 'Backspace') {
+            if (inputIdx > 0) { setInputIdx(p => p - 1); setUserInput(p => p.slice(0, -1)); playAudio('click', sound); }
+            return;
+          }
+          if (e.key.length === 1) {
+            const target = text[inputIdx];
+            if (e.key === target) playAudio(e.key === ' ' ? 'space' : 'correct', sound);
+            else { playAudio('error', sound); setErrors(p => p + 1); }
+            const nextIdx = inputIdx + 1;
+            setUserInput(p => p + e.key);
+            setInputIdx(nextIdx);
+            setAccuracy(Math.max(0, Math.round((nextIdx / (nextIdx + errors + 1)) * 100)));
+            setWpm(Math.round((nextIdx / 5) * 12));
+          }
+        };
+        window.addEventListener('keydown', handleKey);
+        return () => window.removeEventListener('keydown', handleKey);
+      }, [inputIdx, text, errors, sound]);
+
+      return (
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h2>Speed Sprint Test</h2>
+            <button className="tab-btn active" onClick={reset}>🔄 New Sprint</button>
+          </div>
+
+          <div className="stats-banner">
+            <div className="stat-item"><div className="stat-label">Net Speed</div><div className="stat-value highlight">{wpm} WPM</div></div>
+            <div className="stat-item"><div className="stat-label">Accuracy</div><div className="stat-value">{accuracy}%</div></div>
+            <div className="stat-item"><div className="stat-label">Errors</div><div className="stat-value">{errors}</div></div>
+          </div>
+
+          <div className="typing-box">
+            <div className="typing-text">
+              {text.split('').map((char, i) => {
+                let status = 'untyped';
+                if (i < inputIdx) status = userInput[i] === char ? 'correct' : 'incorrect';
+                else if (i === inputIdx) status = 'current';
+                return <span key={i} className={`char ${status}`}>{char}</span>;
+              })}
+            </div>
+          </div>
+
+          <VirtualKeyboard targetChar={text[inputIdx] || ''} />
+        </div>
+      );
+    }
+
+    function DefenseGame({ sound }) {
+      const [score, setScore] = useState(0);
+      const [lives, setLives] = useState(5);
+      const [val, setVal] = useState('');
+      const [words, setWords] = useState([{ id: 1, text: 'start', x: 50, y: 10 }]);
+
+      useEffect(() => {
+        const interval = setInterval(() => {
+          setWords(prev => {
+            const next = prev.map(w => ({ ...w, y: w.y + 2 }));
+            const breach = next.some(w => w.y >= 85);
+            if (breach) {
+              setLives(l => l - 1);
+              playAudio('error', sound);
+              return next.filter(w => w.y < 85);
+            }
+            if (Math.random() < 0.3 && next.length < 5) {
+              const rw = DEFENSE_WORDS[Math.floor(Math.random() * DEFENSE_WORDS.length)];
+              next.push({ id: Date.now(), text: rw, x: Math.floor(Math.random() * 70) + 15, y: 0 });
+            }
+            return next;
+          });
+        }, 300);
+        return () => clearInterval(interval);
+      }, [sound]);
+
+      const handleInput = (e) => {
+        const input = e.target.value;
+        setVal(input);
+        const matchIdx = words.findIndex(w => w.text === input.trim());
+        if (matchIdx !== -1) {
+          playAudio('correct', sound);
+          setScore(s => s + 50);
+          setWords(prev => prev.filter((_, i) => i !== matchIdx));
+          setVal('');
+        }
+      };
+
+      return (
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+            <h2>Word Defense Arcade</h2>
+            <div>Score: <strong>{score}</strong> | Shields: <strong>{'❤️'.repeat(Math.max(0, lives))}</strong></div>
+          </div>
+          <div className="typing-box" style={{ height: '340px', position: 'relative', overflow: 'hidden' }}>
+            {words.map(w => (
+              <div key={w.id} style={{ position: 'absolute', left: `${w.x}%`, top: `${w.y}%`, background: 'var(--bg-card)', padding: '4px 10px', borderRadius: '6px', border: '1px solid var(--border-matte)' }}>
+                {w.text}
+              </div>
+            ))}
+          </div>
+          <input type="text" value={val} onChange={handleInput} placeholder="Type falling words here..." style={{ width: '100%', padding: '0.9rem', borderRadius: '8px', background: 'var(--bg-secondary)', border: '2px solid var(--accent-cyan)', color: '#fff', textAlign: 'center', fontSize: '1.2rem', fontFamily: 'var(--font-mono)' }} autoFocus />
+        </div>
+      );
+    }
+
+    function VirtualKeyboard({ targetChar }) {
+      const rows = [
+        ['1','2','3','4','5','6','7','8','9','0'],
+        ['q','w','e','r','t','y','u','i','o','p'],
+        ['a','s','d','f','g','h','j','k','l',';'],
+        ['z','x','c','v','b','n','m'],
+        ['Space']
+      ];
+      const normTarget = targetChar ? targetChar.toLowerCase() : '';
+
+      return (
+        <div className="keyboard-container">
+          {rows.map((r, ri) => (
+            <div key={ri} className="keyboard-row">
+              {r.map((k, ki) => {
+                const finger = FINGER_MAP[k] || null;
+                const isTarget = (k === 'Space' && normTarget === ' ') || (normTarget === k);
+                return (
+                  <div key={ki} className={`key ${k === 'Space' ? 'key-space' : ''} ${isTarget ? 'target' : ''}`} data-finger={finger}>
+                    {k === 'Space' ? 'SPACEBAR' : k.toUpperCase()}
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+          <div className="finger-legend">
+            <div className="finger-pill"><div className="finger-dot" style={{ background: 'var(--finger-pinky)' }}></div>Pinky</div>
+            <div className="finger-pill"><div className="finger-dot" style={{ background: 'var(--finger-ring)' }}></div>Ring</div>
+            <div className="finger-pill"><div className="finger-dot" style={{ background: 'var(--finger-middle)' }}></div>Middle</div>
+            <div className="finger-pill"><div className="finger-dot" style={{ background: 'var(--finger-index)' }}></div>Index</div>
+            <div className="finger-pill"><div className="finger-dot" style={{ background: 'var(--finger-thumb)' }}></div>Thumb</div>
+          </div>
+        </div>
+      );
+    }
+
+    function GuideModal({ onClose }) {
+      return (
+        <div className="modal-overlay" onClick={onClose}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Touch Typing Beginner Guide</h3>
+              <button className="icon-btn" onClick={onClose}>✕</button>
+            </div>
+            <div className="guide-grid">
+              <div className="guide-card">
+                <h4>1. Home Row Position</h4>
+                <p>Left hand rests on <code>A S D F</code>, Right hand rests on <code>J K L ;</code>. Use the raised bumps on <strong>F</strong> and <strong>J</strong>!</p>
+              </div>
+              <div className="guide-card">
+                <h4>2. Never Look Down</h4>
+                <p>Keep your eyes on the screen's virtual keyboard to condition muscle memory!</p>
+              </div>
+              <div className="guide-card">
+                <h4>3. Finger Zone Mapping</h4>
+                <p>Match each color zone on the keyboard with its corresponding finger for maximum typing efficiency.</p>
+              </div>
+            </div>
+            <button className="btn-primary" onClick={onClose} style={{ marginTop: '1.25rem', width: '100%', justifyContent: 'center' }}>Got it! Start Practice</button>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
