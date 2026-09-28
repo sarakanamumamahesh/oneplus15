@@ -1,4 +1,4 @@
-name: Universal Android Recovery Builder (OrangeFox / TWRP / SHRP / PBRP)
+name: Universal Android Recovery Builder (TWRP / OrangeFox / SHRP / PBRP)
 
 on:
   workflow_dispatch:
@@ -7,13 +7,23 @@ on:
         description: 'Select Recovery Framework'
         required: true
         type: choice
-        default: 'OrangeFox'
+        default: 'TWRP'
         options:
-          - 'OrangeFox'
           - 'TWRP'
+          - 'OrangeFox'
           - 'SHRP'
           - 'PBRP'
           - 'Custom'
+      MAKEFILE_PREFIX:
+        description: 'Product Makefile Prefix (twrp / fox / shrp / pbrp)'
+        required: true
+        type: choice
+        default: 'twrp'
+        options:
+          - 'twrp'
+          - 'fox'
+          - 'shrp'
+          - 'pbrp'
       MANIFEST_URL:
         description: 'Manifest Repository URL (If Custom or Override)'
         required: true
@@ -35,16 +45,6 @@ on:
         description: 'Device Codename'
         required: true
         default: 'oneplus15'
-      MAKEFILE_PREFIX:
-        description: 'Product Makefile Prefix (fox / twrp / shrp / pbrp)'
-        required: true
-        type: choice
-        default: 'fox'
-        options:
-          - 'fox'
-          - 'twrp'
-          - 'shrp'
-          - 'pbrp'
 
 jobs:
   build:
@@ -106,6 +106,9 @@ jobs:
           BRANCH="${{ github.event.inputs.MANIFEST_BRANCH }}"
 
           if [ "$RECOVERY_TYPE" = "TWRP" ]; then
+            URL="https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp.git"
+            BRANCH="twrp-12.1"
+          elif [ "$RECOVERY_TYPE" = "OrangeFox" ]; then
             URL="https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp.git"
             BRANCH="twrp-12.1"
           elif [ "$RECOVERY_TYPE" = "SHRP" ]; then
