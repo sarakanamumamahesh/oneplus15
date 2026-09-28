@@ -25,14 +25,24 @@ PRODUCT_BUILD_PROP_OVERRIDES += \
     PRODUCT_NAME="oneplus15_in" \
     PRIVATE_BUILD_DESC="oneplus15_in-user 15 OOP1.240901.001 A.01 release-keys"
 
-# OrangeFox Branding & Feature Flags
+# OrangeFox Branding & Maintainer
 FOX_VERSION := R12.1
 FOX_BUILD_TYPE := Official
 OF_MAINTAINER := Antigravity
 
-# Enable Magisk installation directly in OrangeFox
+# OrangeFox Feature Flags
+OF_USE_AIDL_BOOT_CONTROL := 1
+OF_FORCE_DATA_FORMAT_F2FS := 1
+OF_UNBIND_SDCARD_F2FS := 1
+OF_WIPE_METADATA_AFTER_DATAFORMAT := 1
+OF_DYNAMIC_FULL_SIZE := 18907922432
+OF_NO_TREBLE_COMPATIBILITY_CHECK := 1
+OF_USE_LZ4_COMPRESSION := 1
+OF_ENABLE_FS_COMPRESSION := 1
+OF_ENABLE_ALL_PARTITION_TOOLS := 1
+OF_WORKAROUND_BACKUP_BUG := 1
+
+# Magisk & Root Support
 OF_USE_MAGISK_INPUT := true
 OF_USE_NEW_MAGISK := true
-
-# Disable splash logo customization override if missing
 OF_NO_SPLASH_CHANGE := 1
