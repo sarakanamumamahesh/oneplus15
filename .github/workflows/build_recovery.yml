@@ -174,11 +174,12 @@ jobs:
           echo "Executing lunch command..."
           lunch ${PREFIX}_${DEVICE}-ap2a-userdebug || lunch ${PREFIX}_${DEVICE}-ap2a-eng || lunch twrp_${DEVICE}-ap2a-userdebug || lunch twrp_${DEVICE}-ap2a-eng || lunch ${PREFIX}_${DEVICE}-userdebug || lunch ${PREFIX}_${DEVICE}-eng || lunch twrp_${DEVICE}-userdebug || lunch twrp_${DEVICE}-eng
           
-          # Cap soong bootstrap + ninja jobs (soong ignores -j4 without these)
-          export NINJA_ARGS="-j4"
-          export SOONG_UI_NINJA_ARGS="-j4"
-          echo "Executing: mka $TARGET -j4"
-          mka $TARGET -j4
+          # Cap soong bootstrap + ninja jobs for constrained GitHub-hosted runners
+          # Start at -j2; raise to -j3 later if memory allows
+          export NINJA_ARGS="-j2"
+          export SOONG_UI_NINJA_ARGS="-j2"
+          echo "Executing: mka $TARGET -j2"
+          mka $TARGET -j2
 
       - name: Package Recovery Output
         run: |
