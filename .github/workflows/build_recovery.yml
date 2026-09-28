@@ -7,14 +7,6 @@ on:
         description: 'OrangeFox Manifest Branch'
         required: true
         default: 'fox_12.1'
-      BUILD_TARGET:
-        description: 'Build Target Image'
-        required: true
-        default: 'vendor_bootimage'
-        type: choice
-        options:
-          - 'vendor_bootimage'
-          - 'recoveryimage'
 
 jobs:
   build:
@@ -65,7 +57,6 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          # Crucial Fix: Unset GitHub Actions extraheader so gitlab.com doesn't reject auth
           git config --global --unset-all http.https://github.com/.extraheader || true
           git config --global url."https://gitlab.com/".insteadOf "git@gitlab.com:" || true
 
@@ -86,7 +77,7 @@ jobs:
           cd ~/orangefox
           source build/envsetup.sh
           lunch fox_oneplus15-userdebug
-          mka ${{ github.event.inputs.BUILD_TARGET }} -j$(nproc --all)
+          mka vendor_bootimage -j$(nproc --all)
 
       - name: Package Recovery Output
         run: |
