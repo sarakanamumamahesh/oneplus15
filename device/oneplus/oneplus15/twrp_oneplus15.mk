@@ -2,8 +2,12 @@
 # Copyright (C) 2026 TWRP & OrangeFox Recovery Project
 #
 
-# Inherit virtual device setup
-$(call inherit-product, $(SRC_TARGET_DIR)/product/generic_ramdisk.mk)
+# Configure base.mk & 64-bit only
+$(call inherit-product, $(SRC_TARGET_DIR)/product/base.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit_only.mk)
+
+# Configure Virtual A/B Compression
+$(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota/compression.mk)
 
 # Inherit TWRP common configs if present
 $(call inherit-product-if-exists, vendor/twrp/config/common.mk)
