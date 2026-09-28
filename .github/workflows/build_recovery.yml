@@ -23,7 +23,6 @@ jobs:
       - name: Checkout Device Tree
         uses: actions/checkout@v4
         with:
-          path: device/oneplus/oneplus15
           persist-credentials: false
 
       - name: Free Up Runner Disk Space
@@ -58,13 +57,11 @@ jobs:
           chmod a+rx ~/.bin/repo
           echo "$HOME/.bin" >> $GITHUB_PATH
 
-      - name: Configure Git & Strip Auth Credentials
+      - name: Configure Git Credentials
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          # Strip extraheader credentials from local and global config
           git config --global --unset-all http.https://github.com/.extraheader || true
-          git config --local --unset-all http.https://github.com/.extraheader || true
           git config --global url."https://github.com/".insteadOf "git@github.com:" || true
 
       - name: Initialize Recovery Source Manifest
@@ -79,7 +76,7 @@ jobs:
           mkdir -p ~/orangefox/device/oneplus/oneplus15
           cp -r device/oneplus/oneplus15/* ~/orangefox/device/oneplus/oneplus15/
 
-      - name: Build OrangeFox Recovery (vendor_bootimage)
+      - name: Build OrangeFox / TWRP Recovery (vendor_bootimage)
         run: |
           cd ~/orangefox
           source build/envsetup.sh

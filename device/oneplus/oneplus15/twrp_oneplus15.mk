@@ -1,38 +1,25 @@
 #
-# Copyright (C) 2026 The OrangeFox Recovery Project
+# Copyright (C) 2026 TWRP & OrangeFox Recovery Project
 #
 
 # Inherit virtual device setup
 $(call inherit-product, $(SRC_TARGET_DIR)/product/generic_ramdisk.mk)
 
-# Inherit OrangeFox / TWRP configurations safely
-$(call inherit-product-if-exists, vendor/recovery/config/fox.mk)
+# Inherit TWRP common configs if present
 $(call inherit-product-if-exists, vendor/twrp/config/common.mk)
 $(call inherit-product-if-exists, vendor/omni/config/common.mk)
+$(call inherit-product-if-exists, vendor/recovery/config/fox.mk)
 
 # Inherit local device tree configuration
 $(call inherit-product, device/oneplus/oneplus15/device.mk)
 
-PRODUCT_NAME := fox_oneplus15
+PRODUCT_NAME := twrp_oneplus15
 PRODUCT_DEVICE := oneplus15
 PRODUCT_BRAND := OnePlus
 PRODUCT_MODEL := OnePlus 15 (IN)
 PRODUCT_MANUFACTURER := OnePlus
 
-# Indian Variant (CPH / IN Region) Specifics
 PRODUCT_BUILD_PROP_OVERRIDES += \
     TARGET_DEVICE="oneplus15" \
     PRODUCT_NAME="oneplus15_in" \
     PRIVATE_BUILD_DESC="oneplus15_in-user 15 OOP1.240901.001 A.01 release-keys"
-
-# OrangeFox Branding & Feature Flags
-FOX_VERSION := R12.1
-FOX_BUILD_TYPE := Official
-OF_MAINTAINER := Antigravity
-
-# Enable Magisk installation directly in OrangeFox
-OF_USE_MAGISK_INPUT := true
-OF_USE_NEW_MAGISK := true
-
-# Disable splash logo customization override if missing
-OF_NO_SPLASH_CHANGE := 1
