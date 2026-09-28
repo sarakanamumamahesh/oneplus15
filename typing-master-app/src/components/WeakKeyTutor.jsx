@@ -3,7 +3,11 @@ import confetti from 'canvas-confetti';
 import { getWeakestKeys, generateAdaptiveDrillText, recordKeyAttempt } from '../utils/weakKeyTutor';
 import VirtualKeyboard from './VirtualKeyboard';
 import { playSound } from '../utils/soundEngine';
+<<<<<<< HEAD
 import { BrainCircuit, RotateCcw, Target, Sparkles } from 'lucide-react';
+=======
+import { BrainCircuit, RotateCcw, Target } from 'lucide-react';
+>>>>>>> main
 
 export default function WeakKeyTutor({ soundEnabled }) {
   const [weakKeys, setWeakKeys] = useState([]);
@@ -51,7 +55,10 @@ export default function WeakKeyTutor({ soundEnabled }) {
       const typedChar = e.key;
       const isCorrect = typedChar === targetChar;
 
+<<<<<<< HEAD
       // Track accuracy per key into AI weak key engine
+=======
+>>>>>>> main
       if (targetChar) {
         recordKeyAttempt(targetChar, isCorrect);
       }
@@ -75,7 +82,13 @@ export default function WeakKeyTutor({ soundEnabled }) {
       if (nextIndex >= drillText.length) {
         setCompleted(true);
         playSound('success', soundEnabled);
+<<<<<<< HEAD
         confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+=======
+        try {
+          confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+        } catch (e) {}
+>>>>>>> main
       }
     }
   };

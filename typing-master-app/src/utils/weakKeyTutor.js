@@ -37,14 +37,20 @@ export function getWeakestKeys(limit = 4) {
     return { key: k, attempts, errors, errorRate };
   });
 
+<<<<<<< HEAD
   // Filter keys with at least 2 attempts and sort by error rate descending
+=======
+>>>>>>> main
   const weakKeys = keysArray
     .filter((item) => item.attempts >= 2 && item.errors > 0)
     .sort((a, b) => b.errorRate - a.errorRate)
     .slice(0, limit)
     .map((item) => item.key);
 
+<<<<<<< HEAD
   // Default fallbacks if user is new
+=======
+>>>>>>> main
   if (weakKeys.length === 0) {
     return ['p', 'q', 'z', 'x'];
   }
@@ -56,7 +62,11 @@ export function generateAdaptiveDrillText(weakKeys) {
   const fillers = ['a', 's', 'd', 'f', 'j', 'k', 'l'];
 
   let patterns = [];
+<<<<<<< HEAD
   for (let i = 0; i < 12; i++) {
+=======
+  for (let i = 0; i < 10; i++) {
+>>>>>>> main
     const k1 = keys[i % keys.length];
     const k2 = keys[(i + 1) % keys.length];
     const f1 = fillers[i % fillers.length];

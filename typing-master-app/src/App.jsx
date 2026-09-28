@@ -4,12 +4,17 @@ import BeginnerAcademy from './components/BeginnerAcademy';
 import WeakKeyTutor from './components/WeakKeyTutor';
 import SpeedTest from './components/SpeedTest';
 import WordDefenseGame from './components/WordDefenseGame';
+import VerificationPortal from './components/VerificationPortal';
 import BeginnerGuideModal from './components/BeginnerGuideModal';
 import CertificateModal from './components/CertificateModal';
 import './styles/matte-theme.css';
 
 export default function App() {
+<<<<<<< HEAD
   const [activeTab, setActiveTab] = useState('academy'); // academy, aitutor, speed, quotes, defense
+=======
+  const [activeTab, setActiveTab] = useState('academy'); // academy, aitutor, speed, verify, defense
+>>>>>>> main
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [theme, setTheme] = useState('dark');
   const [isGuideOpen, setIsGuideOpen] = useState(false);
@@ -51,8 +56,8 @@ export default function App() {
           <SpeedTest soundEnabled={soundEnabled} mode="timed" />
         )}
 
-        {activeTab === 'quotes' && (
-          <SpeedTest soundEnabled={soundEnabled} mode="quote" />
+        {activeTab === 'verify' && (
+          <VerificationPortal />
         )}
 
         {activeTab === 'defense' && (
@@ -76,7 +81,11 @@ export default function App() {
       {/* Footer */}
       <footer style={{ marginTop: '3rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-subtle)', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
         <div>
+<<<<<<< HEAD
           Typing Master • AI-Powered Touch Typing Academy & Certificate Generator
+=======
+          Typing Master • Unique Certificate Registration & Public Verification Registry
+>>>>>>> main
         </div>
       </footer>
     </div>

@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from 'react';
+<<<<<<< HEAD
 import { Keyboard, GraduationCap, Zap, BookOpen, Gamepad2, Volume2, VolumeX, Moon, Sun, HelpCircle, Download, BrainCircuit, Award } from 'lucide-react';
+=======
+import { Keyboard, GraduationCap, Zap, BookOpen, Gamepad2, Volume2, VolumeX, Moon, Sun, HelpCircle, Download, BrainCircuit, Award, ShieldCheck } from 'lucide-react';
+>>>>>>> main
 
 export default function Navbar({ 
   activeTab, 
@@ -76,12 +80,12 @@ export default function Navbar({
         </button>
 
         <button 
-          className={`tab-btn ${activeTab === 'quotes' ? 'active' : ''}`}
-          onClick={() => setActiveTab('quotes')}
-          title="Quotes & Code Snippets"
+          className={`tab-btn ${activeTab === 'verify' ? 'active' : ''}`}
+          onClick={() => setActiveTab('verify')}
+          title="Certificate Verification Portal"
         >
-          <BookOpen size={18} />
-          <span>Sprints</span>
+          <ShieldCheck size={18} />
+          <span>Verify Cert</span>
         </button>
 
         <button 
@@ -99,7 +103,11 @@ export default function Navbar({
           className="btn-primary"
           onClick={onOpenCertificate}
           style={{ background: 'linear-gradient(135deg, var(--accent-amber), #d97706)', border: 'none' }}
+<<<<<<< HEAD
           title="Generate Shareable Typing Certificate"
+=======
+          title="Generate Unique Verifiable Typing Certificate"
+>>>>>>> main
         >
           <Award size={16} />
           <span>Certificate</span>
